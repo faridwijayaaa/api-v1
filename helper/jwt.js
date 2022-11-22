@@ -17,4 +17,8 @@ function hashPassword(password) {
   return hash;
 }
 
-module.exports = { generatorToken, verifyToken, hashPassword };
+function comparePassword(password, hash) {
+  return bcrypt.compareSync(password, hash);
+}
+
+module.exports = { generatorToken, verifyToken, hashPassword, comparePassword };
