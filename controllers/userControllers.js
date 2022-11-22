@@ -26,7 +26,7 @@ class userControllers {
 
       await db.query(`INSERT INTO users (email, password) VALUES ($1, $2);`, [
         email,
-        password,
+        hash,
       ]);
 
       return res.status(201).json({
