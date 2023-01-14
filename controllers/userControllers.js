@@ -11,14 +11,11 @@ class userControllers {
   // ! REGISTER
   static async register(req, res) {
     try {
-      const {
-        email,
-        password
-      } = req.body;
+      const { email, password } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({
-          msg: "register failed"
+          msg: "register failed",
         });
       }
 
@@ -40,34 +37,30 @@ class userControllers {
   // ! LOGIN
   static async login(req, res) {
     try {
-      const {
-        email,
-        password
-      } = req.body;
+      const { email, password } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({
-          msg: "email or password is missing"
+          msg: "email or password is missing",
         });
       }
 
-      let userData = await db.query(
-        "SELECT * FROM users WHERE email = ($1);",
-        [email]
-      );
+      let userData = await db.query("SELECT * FROM users WHERE email = ($1);", [
+        email,
+      ]);
 
       const existingUser = await userData["rows"][0];
 
-      if (!(existingUser)) {
+      if (!existingUser) {
         return res.status(404).json({
-          msg: "account is not found"
+          msg: "account is not found",
         });
       }
 
       let compare = comparePassword(password, existingUser.password);
       if (!compare) {
         return res.status(400).json({
-          msg: "Password is wrong"
+          msg: "Password is wrong",
         });
       }
 
@@ -76,8 +69,13 @@ class userControllers {
         email: existingUser.email,
       });
 
+      req.session.user = {
+        id: existingUser.id,
+        email: existingUser.email,
+      };
+
       return res.status(200).json({
-        token: token
+        token: token,
       });
     } catch (error) {
       return res.status(500).json(error);
@@ -86,7 +84,7 @@ class userControllers {
 
   static async getDataByToken(req, res) {
     try {
-      const token = req.headers["x-access-token"];
+      const token = req.headers.authorization;
       const userDecoded = verifyToken(token);
 
       if (userDecoded) {
@@ -96,7 +94,7 @@ class userControllers {
         });
       } else {
         return res.status(404).json({
-          msg: "404"
+          msg: "404",
         });
       }
     } catch (error) {
@@ -106,6 +104,3 @@ class userControllers {
 }
 
 module.exports = userControllers;
-
-
-// BCRYPTTT COMPARE ???
